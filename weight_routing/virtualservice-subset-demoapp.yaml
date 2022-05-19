@@ -1,0 +1,18 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: webdemo
+spec:
+  hosts:
+  - webdemo
+  http:
+  - name: weight-based-routing
+    route:
+    - destination:
+        host: webdemo
+        subset: v1
+      weight: 90
+    - destination:
+        host: webdemo
+        subset: v2
+      weight: 10

@@ -1,0 +1,61 @@
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: webdemov1
+#spec:
+#  ports:
+#    - name: http
+#      port: 9999
+#      protocol: TCP
+#      targetPort: 9999
+#  selector:
+#    app: web
+#    version: v1
+#---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: candy-web-deploy-v1
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: web
+        version: v1
+    spec:
+      containers:
+      - image: harbor.candy.io/base/webdemo:v1
+        imagePullPolicy: IfNotPresent
+        name: tracing
+        ports:
+        - containerPort: 9999
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        readinessProbe:
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 3
+          failureThreshold: 1
+          httpGet:
+            path: /monitor
+            port: 9999
+            scheme: HTTP
+        livenessProbe:
+          initialDelaySeconds: 15
+          periodSeconds: 3
+          successThreshold: 1
+          timeoutSeconds: 1
+          failureThreshold: 2
+          tcpSocket:
+            port: 9999
